@@ -1,19 +1,18 @@
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
+import numpy as np
 
 #make a 3d graph to plot data
 spacetime = plt.figure().add_subplot(projection="3d")
 
-#get 3d test data
-X, Y, Z = axes3d.get_test_data(0.05)
-print(X)
-print("")
-print(Y)
-print("")
-print(Z)
+#generate the 2d mesh for graphing repeatedly into layers
+x, y = np.meshgrid(np.linspace(0, 100), np.linspace(0, 100))
 
-#plot 3d data
-spacetime.plot_surface(X, Y, Z, edgecolor="royalblue", lw=0.5, rstride=8, cstride=8, alpha=0.3)
+#calculate the z-coordinates based on the x and y coordinates
+z = x*y
+
+#plot the 3d data
+spacetime.plot_wireframe(x, y, z, rstride=20, cstride=20)
 
 #show the data on the graph
 plt.show()
