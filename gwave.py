@@ -18,6 +18,9 @@ spacing = 10
 #generate the 2d mesh for graphing repeatedly into layers
 x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
 
+#the values to manipulate using wave function to produce a 3d representation of any wave
+r = np.sqrt(x**2+y**2)
+
 '''
 PLOTTING 2D LAYERS ON EACH AXIS FOR A 3D GRID MESH REPRESENTING SPACE-TIME
 '''
@@ -57,8 +60,6 @@ def bell_curve(inputvals, period, amplitude, phaseshift=0):
 
 #function for layering grids along the z axis
 def layer_z(warp=0):
-	r = np.sqrt(x**2 + y**2)
-
 	#graph layers along the z axis
 	for elev in range(-size, size+spacing, spacing):
 		#make an empty array with the same shape as the x or y coordinates
@@ -69,9 +70,7 @@ def layer_z(warp=0):
 		z += elev
 
 		#warp the 2d grid using a wave function
-		#z += warp
-		#z += wave(r, 200, 50)
-		z += bell_curve(r, 50, 200)
+		z += warp
 
 		#plot the 3d data
 		spacetime.plot_wireframe(x, y, z, rstride=spacing, cstride=spacing, linewidth=1, color="red", alpha=0.5)
@@ -111,7 +110,7 @@ def layer_x(warp=0):
 		spacetime.plot_wireframe(z, y, x, rstride=spacing, cstride=spacing, linewidth=1, color="blue", alpha=0.5)
 
 #create layers with different "warp" properties for each dimension
-layer_z(bell_curve(x, 20, 10, 50))
+layer_z(bell_curve(r, 50, 100))
 
 #plot an example point with mass in spacetime
 spacetime.scatter(0, 0, 0, c="red", s=1000, alpha=1)
