@@ -13,7 +13,7 @@ spacetime = plt.figure().add_subplot(projection="3d")
 size = 100
 
 #a variable for the spacing between each point in the spacetime mesh
-spacing = 20
+spacing = 10
 
 #generate the 2d mesh for graphing repeatedly into layers
 x, y = np.meshgrid(np.linspace(0, size), np.linspace(0, size))
@@ -34,6 +34,26 @@ def wave(inputvals, period, amplitude, phaseshift=0):
 
 	#return the resulting range of values as a wave function
 	return wavefunc
+
+#a function for generating a bell curve
+def bell_curve(inputvals, period, amplitude, phaseshift=0):
+	#shift the input values according to the phase shift of the curve
+	phaseval = (inputvals - phaseshift)
+
+	#add the period to the math transformation (width of the curve)
+	inputnum = phaseval / period
+
+	#add exponents and a negative sign to make it into a curve
+	inputnum = -(inputnum)**2
+
+	#use eulers number to make the bell curve
+	bellcurve = math.e**inputnum
+
+	#add the amplitude necessary for this curve
+	bellcurve = amplitude * bellcurve
+
+	#return the resulting range of values
+	return bellcurve
 
 #function for layering grids along the z axis
 def layer_z(warp=0):
@@ -87,9 +107,10 @@ def layer_x(warp=0):
 		spacetime.plot_wireframe(z, y, x, rstride=spacing, cstride=spacing, linewidth=1, color="blue", alpha=0.5)
 
 #create layers with different "warp" properties for each dimension
-layer_x(wave(x, 200, 5))
-layer_y(wave(x, 200, 10))
-layer_z(wave(x, 200, 20, np.pi))
+#layer_x(wave(x, 200, 5))
+#layer_y(wave(x, 200, 10))
+layer_z(bell_curve(x, 20, 10, 50))
+#layer_z(wave(x, 200, 20, np.pi))
 
 #plot an example point with mass in spacetime
 spacetime.scatter(50, 50, 50, c="red", s=1000, alpha=1)
