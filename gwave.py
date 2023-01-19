@@ -110,10 +110,13 @@ def layer_x(warp=0):
 		spacetime.plot_wireframe(z, y, x, rstride=spacing, cstride=spacing, linewidth=1, color="blue", alpha=0.5)
 
 #create layers with different "warp" properties for each dimension
+layer_x(bell_curve(r, 50, 100))
+layer_y(bell_curve(r, 50, 100))
 layer_z(bell_curve(r, 50, 100))
 
+
 #plot an example point with mass in spacetime
-spacetime.scatter(0, 0, 0, c="red", s=1000, alpha=1)
+spacetime.scatter(0, 0, 0, c="purple", s=1000, alpha=1)
 
 #show the data on the graph
 plt.show()
