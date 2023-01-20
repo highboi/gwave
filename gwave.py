@@ -10,10 +10,13 @@ import math
 spacetime = plt.figure().add_subplot(projection="3d")
 
 #a variable for the volume of the spacetime being simulated
-size = 100
+size = 200
 
-#a variable for the spacing between each point in the spacetime mesh
+#a variable for the spacing the grids
 spacing = 20
+
+#a variable for spacing the grid lines on each grid
+gridlinespacing = 5
 
 #generate the 2d mesh for graphing repeatedly into layers
 x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
@@ -22,7 +25,7 @@ x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
 r = np.sqrt(x**2+y**2)
 
 #define values for the location(s) and weights of masses in spacetime (adding multiple masses to one array is useful)
-masses = [[0, 0, 0, 1], [100, 0, 0, 3]]
+masses = [[0, 0, 0, 1]]
 
 '''
 FUNCTIONS FOR MANIPULATING THE 2D GRIDS USING WAVE FUNCTIONS TO REPRESENT SPACETIME CURVATURE
@@ -84,11 +87,27 @@ def layer_z(warp=0):
 		#add the elevation to the z coordinates
 		z += elev
 
-		#warp the 2d grid using a wave function
-		z += warp
+		#warp the fields according to the distance from each mass
+		for mass in masses:
+			#get the distance of this plane from the mass
+			distance = z[0][0] - mass[0]
+
+			#get the mass number
+			weight = mass[3]*1000
+
+			#if the plane is right on the mass, don't manipulate anything about it
+			if not distance:
+				continue
+
+			#calculate the amplitude and the period of the gaussian distribution based on the mass and distance
+			amplitude = -(weight / distance)
+			period = (distance / weight)*1000
+
+			#add a bell curve to this plane based on the distance from this mass
+			z += bell_curve(r, period, amplitude)
 
 		#plot the 3d data
-		spacetime.plot_wireframe(x, y, z, rstride=spacing, cstride=spacing, linewidth=1, color="red", alpha=0.5)
+		spacetime.plot_wireframe(x, y, z, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
 
 #function for layering grids along the y axis
 def layer_y(warp=0):
@@ -101,11 +120,27 @@ def layer_y(warp=0):
 		#add the elevation to the z coordinates
 		z += elev
 
-		#warp the 2d grid using a wave function
-		z += warp
+		#warp the fields according to the distance from each mass
+		for mass in masses:
+			#get the distance of this plane from the mass
+			distance = z[0][0] - mass[0]
+
+			#get the mass number
+			weight = mass[3]*1000
+
+			#if the plane is right on the mass, don't manipulate anything about it
+			if not distance:
+				continue
+
+			#calculate the amplitude and the period of the gaussian distribution based on the mass and distance
+			amplitude = -(weight / distance)
+			period = (distance / weight)*1000
+
+			#add a bell curve to this plane based on the distance from this mass
+			z += bell_curve(r, period, amplitude)
 
 		#plot the 3d data
-		spacetime.plot_wireframe(x, z, y, rstride=spacing, cstride=spacing, linewidth=1, color="green", alpha=0.5)
+		spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
 
 #function for layering grids along the x axis
 def layer_x(warp=0):
@@ -138,10 +173,12 @@ def layer_x(warp=0):
 			z += bell_curve(r, period, amplitude)
 
 		#plot the 3d data
-		spacetime.plot_wireframe(z, y, x, rstride=spacing, cstride=spacing, linewidth=1, color="blue", alpha=0.5)
+		spacetime.plot_wireframe(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
 
 #create layers with different "warp" properties for each dimension
 layer_x()
+layer_y()
+layer_z()
 
 #show the data on the graph
 plt.show()
