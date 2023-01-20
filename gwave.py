@@ -13,7 +13,7 @@ spacetime = plt.figure().add_subplot(projection="3d")
 size = 100
 
 #a variable for the spacing between each point in the spacetime mesh
-spacing = 10
+spacing = 20
 
 #generate the 2d mesh for graphing repeatedly into layers
 x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
@@ -21,8 +21,11 @@ x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
 #the values to manipulate using wave function to produce a 3d representation of any wave
 r = np.sqrt(x**2+y**2)
 
+#define values for the location(s) and weights of masses in spacetime (adding multiple masses to one array is useful)
+masses = [[0, 0, 0, 1], [100, 0, 0, 3]]
+
 '''
-PLOTTING 2D LAYERS ON EACH AXIS FOR A 3D GRID MESH REPRESENTING SPACE-TIME
+FUNCTIONS FOR MANIPULATING THE 2D GRIDS USING WAVE FUNCTIONS TO REPRESENT SPACETIME CURVATURE
 '''
 #a function for generating a wave with certain properties
 def wave(inputvals, period, amplitude, phaseshift=0):
@@ -58,6 +61,18 @@ def bell_curve(inputvals, period, amplitude, phaseshift=0):
 	#return the resulting range of values
 	return bellcurve
 
+#a function for plotting a point mass
+def plot_mass(x, y, z, mass):
+	#plot the mass and make the size a multiple of the mass (mass is in kilograms)
+	spacetime.scatter(x, y, z, c="magenta", s=mass*1000)
+
+#plot all masses defined in the array of point masses
+for mass in masses:
+	plot_mass(mass[0], mass[1], mass[2], mass[3])
+
+'''
+FUNCTIONS FOR PLOTTING SPACETIME LAYERS IN 3 DIMENSIONS
+'''
 #function for layering grids along the z axis
 def layer_z(warp=0):
 	#graph layers along the z axis
@@ -78,7 +93,7 @@ def layer_z(warp=0):
 #function for layering grids along the y axis
 def layer_y(warp=0):
 	#graph layers along the y axis
-	for elev in range(0, size+spacing, spacing):
+	for elev in range(-size, size+spacing, spacing):
 		#make an empty array with the same shape as the x or y coordinates
 		z = np.empty(x.shape)
 		z.fill(0)
@@ -95,7 +110,7 @@ def layer_y(warp=0):
 #function for layering grids along the x axis
 def layer_x(warp=0):
 	#graph layers along the x axis
-	for elev in range(0, size+spacing, spacing):
+	for elev in range(-size, size+spacing, spacing):
 		#make an empty array with the same shape as the x or y coordinates
 		z = np.empty(x.shape)
 		z.fill(0)
@@ -103,20 +118,30 @@ def layer_x(warp=0):
 		#add the elevation to the z coordinates
 		z += elev
 
-		#warp the 2d grid using a wave function
-		z += warp
+		#warp the fields according to the distance from each mass
+		for mass in masses:
+			#get the distance of this plane from the mass
+			distance = z[0][0] - mass[0]
+
+			#get the mass number
+			weight = mass[3]*1000
+
+			#if the plane is right on the mass, don't manipulate anything about it
+			if not distance:
+				continue
+
+			#calculate the amplitude and the period of the gaussian distribution based on the mass and distance
+			amplitude = -(weight / distance)
+			period = (distance / weight)*1000
+
+			#add a bell curve to this plane based on the distance from this mass
+			z += bell_curve(r, period, amplitude)
 
 		#plot the 3d data
 		spacetime.plot_wireframe(z, y, x, rstride=spacing, cstride=spacing, linewidth=1, color="blue", alpha=0.5)
 
 #create layers with different "warp" properties for each dimension
-layer_x(bell_curve(r, 50, 100))
-layer_y(bell_curve(r, 50, 100))
-layer_z(bell_curve(r, 50, 100))
-
-
-#plot an example point with mass in spacetime
-spacetime.scatter(0, 0, 0, c="purple", s=1000, alpha=1)
+layer_x()
 
 #show the data on the graph
 plt.show()
