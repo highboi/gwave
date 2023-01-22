@@ -13,7 +13,7 @@ spacetime = plt.figure().add_subplot(projection="3d")
 size = 200
 
 #a variable for the spacing the grids
-spacing = 20
+spacing = 40
 
 #a variable for spacing the grid lines on each grid
 gridlinespacing = 5
@@ -25,7 +25,7 @@ x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
 r = np.sqrt(x**2+y**2)
 
 #define values for the location(s) and weights of masses in spacetime (adding multiple masses to one array is useful)
-masses = [[0, 0, 0, 1]]
+masses = [[0, 100, 100, 1]]
 
 '''
 FUNCTIONS FOR MANIPULATING THE 2D GRIDS USING WAVE FUNCTIONS TO REPRESENT SPACETIME CURVATURE
@@ -50,13 +50,13 @@ def bell_curve(inputvals, period, amplitude, phaseshift=0):
 	phaseval = (inputvals - phaseshift)
 
 	#add the period to the math transformation (width of the curve)
-	inputnum = phaseval / period
+	periodnum = phaseval / period
 
 	#add exponents and a negative sign to make it into a curve
-	inputnum = -(inputnum)**2
+	periodnum = -(periodnum)**2
 
 	#use eulers number to make the bell curve
-	bellcurve = math.e**inputnum
+	bellcurve = math.e**periodnum
 
 	#add the amplitude necessary for this curve
 	bellcurve = amplitude * bellcurve
@@ -104,10 +104,14 @@ def layer_z(warp=0):
 			period = (distance / weight)*1000
 
 			#add a bell curve to this plane based on the distance from this mass
-			z += bell_curve(r, period, amplitude)
+			z += bell_curve(x, period, amplitude, mass[0])
+			z += bell_curve(y, period, amplitude, mass[1])
 
 		#plot the 3d data
-		spacetime.plot_wireframe(x, y, z, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
+		spacetime.plot_wireframe(x, y, z, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=0, color="red", alpha=0.5)
+
+		#project contours onto the map for visualizing gravitational strain
+		spacetime.contour(x, y, z, zdir="z", cmap="coolwarm", offset=-size)
 
 #function for layering grids along the y axis
 def layer_y(warp=0):
@@ -137,10 +141,14 @@ def layer_y(warp=0):
 			period = (distance / weight)*1000
 
 			#add a bell curve to this plane based on the distance from this mass
-			z += bell_curve(r, period, amplitude)
+			z += bell_curve(x, period, amplitude, mass[0])
+			z += bell_curve(y, period, amplitude, mass[2])
 
 		#plot the 3d data
-		spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
+		spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=0, color="green", alpha=0.5)
+
+		#project contours onto the map for visualizing gravitational strain
+		spacetime.contour(x, z, y, zdir="y", cmap="coolwarm", offset=size)
 
 #function for layering grids along the x axis
 def layer_x(warp=0):
@@ -170,10 +178,14 @@ def layer_x(warp=0):
 			period = (distance / weight)*1000
 
 			#add a bell curve to this plane based on the distance from this mass
-			z += bell_curve(r, period, amplitude)
+			z += bell_curve(x, period, amplitude, mass[2])
+			z += bell_curve(y, period, amplitude, mass[1])
 
 		#plot the 3d data
-		spacetime.plot_wireframe(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
+		spacetime.plot_wireframe(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=0, color="blue", alpha=0.5)
+
+		#project contours onto the map for visualizing gravitational strain
+		spacetime.contour(z, y, x, zdir="x", cmap="coolwarm", offset=size)
 
 #create layers with different "warp" properties for each dimension
 layer_x()
