@@ -2,6 +2,7 @@
 MODULES AND VARIABLES FOR PLOTTING
 '''
 from mpl_toolkits.mplot3d import axes3d
+from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -13,7 +14,7 @@ spacetime = plt.figure().add_subplot(projection="3d")
 size = 200
 
 #a variable for the spacing the grids
-spacing = 40
+spacing = 50
 
 #a variable for spacing the grid lines on each grid
 gridlinespacing = 5
@@ -25,7 +26,7 @@ x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
 r = np.sqrt(x**2+y**2)
 
 #define values for the location(s) and weights of masses in spacetime (adding multiple masses to one array is useful)
-masses = [[0, 100, 100, 1]]
+masses = [[100, 100, 100, 1], [-100, -100, -100, 1]]
 
 '''
 FUNCTIONS FOR MANIPULATING THE 2D GRIDS USING WAVE FUNCTIONS TO REPRESENT SPACETIME CURVATURE
@@ -84,6 +85,9 @@ def layer_z(warp=0):
 		z = np.empty(x.shape)
 		z.fill(0)
 
+		print(len(z))
+		print(len(z[0]))
+
 		#add the elevation to the z coordinates
 		z += elev
 
@@ -96,19 +100,35 @@ def layer_z(warp=0):
 			weight = mass[3]*1000
 
 			#if the plane is right on the mass, don't manipulate anything about it
-			if not distance:
+			if distance == 0:
 				continue
 
 			#calculate the amplitude and the period of the gaussian distribution based on the mass and distance
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
+			#get the bell curve for each dimension
+			x_distortion = bell_curve(x, period, amplitude, mass[0])
+			y_distortion = bell_curve(y, period, amplitude, mass[1])
+
 			#add a bell curve to this plane based on the distance from this mass
-			z += bell_curve(x, period, amplitude, mass[0])
-			z += bell_curve(y, period, amplitude, mass[1])
+			z += x_distortion
+			z += y_distortion
+
+			#code for removing unnecessary bell curves in the other two axes, makes a unique and local dip in spacetime
+			for arrindex, arr in enumerate(z):
+				for pointindex, point in enumerate(arr):
+					x_distortion_amount = abs((point-x_distortion[arrindex][pointindex])-elev)
+					y_distortion_amount = abs((point-y_distortion[arrindex][pointindex])-elev)
+
+					if x_distortion_amount <= 0.05:
+						z[arrindex][pointindex] = elev
+
+					if y_distortion_amount <= 0.05:
+						z[arrindex][pointindex] = elev
 
 		#plot the 3d data
-		spacetime.plot_wireframe(x, y, z, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=0, color="red", alpha=0.5)
+		spacetime.plot_wireframe(x, y, z, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
 
 		#project contours onto the map for visualizing gravitational strain
 		spacetime.contour(x, y, z, zdir="z", cmap="coolwarm", offset=-size)
@@ -145,7 +165,7 @@ def layer_y(warp=0):
 			z += bell_curve(y, period, amplitude, mass[2])
 
 		#plot the 3d data
-		spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=0, color="green", alpha=0.5)
+		spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
 
 		#project contours onto the map for visualizing gravitational strain
 		spacetime.contour(x, z, y, zdir="y", cmap="coolwarm", offset=size)
@@ -188,8 +208,11 @@ def layer_x(warp=0):
 		spacetime.contour(z, y, x, zdir="x", cmap="coolwarm", offset=size)
 
 #create layers with different "warp" properties for each dimension
+'''
 layer_x()
 layer_y()
+'''
+
 layer_z()
 
 #show the data on the graph
