@@ -1,9 +1,7 @@
-from matplotlib.pyplot import figure,show
 import numpy as np
 
-x,y = np.meshgrid(np.linspace(0,2*np.pi), np.linspace(0,2*np.pi))
-
-z = np.sin(x+0.5*y)
-ax = figure().gca(projection='3d')
-ax.plot_wireframe(x,y,z)
-show()
+def bivariate_distribution(domain, mean, variance):
+	X = np.arange(-domain+mean, domain+mean, variance)
+	Y = np.arange(-domain+mean, domain+mean, variance)
+	X, Y = np.meshgrid(X, Y)
+	R = np.sqrt(X**2+Y**2)
