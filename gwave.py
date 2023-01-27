@@ -115,10 +115,10 @@ def layer_z(warp=0):
 			distortions.append([x+mass[0], y+mass[1], z+square_distortion])
 
 			#plot the distortion created by this mass and orient it towards the location of the mass
-			spacetime.plot_wireframe(x+mass[0], y+mass[1], z+square_distortion, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
+			#spacetime.plot_wireframe(x+mass[0], y+mass[1], z+square_distortion, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
 
 			#plot the contour created by this mass and orient it towards the location of the mass
-			#spacetime.contour(x+mass[0], y+mass[1], z+square_distortion, cmap="seismic")
+			spacetime.contourf(x+mass[0], y+mass[1], z+square_distortion, cmap="seismic", zdir="z", offset=-400)
 
 #function for layering grids along the y axis
 def layer_y(warp=0):
@@ -152,10 +152,10 @@ def layer_y(warp=0):
 			square_distortion = bell_curve(r, weight/20, amplitude)
 
 			#plot the distortion created by this mass and orient it towards the location of the mass
-			spacetime.plot_wireframe(x+mass[0], z+square_distortion, y+mass[1], rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
+			#spacetime.plot_wireframe(x+mass[0], z+square_distortion, y+mass[1], rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
 
 			#plot the contour created by this mass and orient it towards the location of the mass
-			#spacetime.contour(x+mass[0], z+square_distortion, y+mass[1], cmap="seismic")
+			spacetime.contourf(x+mass[0], z+square_distortion, y+mass[1], cmap="seismic", zdir="y", offset=-400)
 
 #function for layering grids along the x axis
 def layer_x(warp=0):
@@ -189,10 +189,10 @@ def layer_x(warp=0):
 			square_distortion = bell_curve(r, weight/20, amplitude)
 
 			#plot the distortion created by this mass and orient it towards the location of the mass
-			spacetime.plot_wireframe(z+square_distortion, y+mass[1], x+mass[0], rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
+			#spacetime.plot_wireframe(z+square_distortion, y+mass[1], x+mass[0], rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
 
 			#plot the contour created by this mass and orient it towards the location of the mass
-			#spacetime.contour(z+square_distortion, y+mass[1], x+mass[0], cmap="seismic")
+			spacetime.contourf(z+square_distortion, y+mass[1], x+mass[0], cmap="seismic", zdir="x", offset=-400)
 
 #create layers with different "warp" properties for each dimension
 '''
