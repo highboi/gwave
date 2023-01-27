@@ -23,10 +23,10 @@ gridlinespacing = 5
 x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
 
 #the values to manipulate using wave function to produce a 3d representation of any wave
-r = np.sqrt(x**2+y**2)
+r = np.sqrt((x+100)**2+(y+100)**2)
 
 #define values for the location(s) and weights of masses in spacetime (adding multiple masses to one array is useful)
-masses = [[100, 100, 100, 1], [-100, -100, -100, 5]]
+masses = [[0, 0, 0, 1], [-100, -100, -100, 5]]
 
 '''
 FUNCTIONS FOR MANIPULATING THE 2D GRIDS USING WAVE FUNCTIONS TO REPRESENT SPACETIME CURVATURE
@@ -78,7 +78,7 @@ for mass in masses:
 FUNCTIONS FOR PLOTTING SPACETIME LAYERS IN 3 DIMENSIONS
 '''
 #function for layering grids along the z axis
-def layer_z(warp=0):
+def layer_z():
 	#graph layers along the z axis
 	for elev in range(-size, size+spacing, spacing):
 		#make an empty array with the same shape as the x or y coordinates
@@ -87,9 +87,6 @@ def layer_z(warp=0):
 
 		#add the elevation to the z coordinates
 		z += elev
-
-		#an array to store the different individual distortion fields of each mass
-		distortions = []
 
 		#warp the fields according to the distance from each mass
 		for mass in masses:
@@ -107,21 +104,24 @@ def layer_z(warp=0):
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
+			#create the input values for making the 3d bell curve with the mass location offsets taken into account
+			r = np.sqrt((x-mass[0])**2 + (y-mass[1])**2)
+
 			#the distortion for the peak/3d bell curve
-			#square_distortion = bell_curve(r, period, amplitude)
-			square_distortion = bell_curve(r, weight/20, amplitude)
+			square_distortion = bell_curve(r, period, amplitude)
+			#square_distortion = bell_curve(r, weight/20, amplitude)
 
-			#add this individual distortion to the distortions array
-			distortions.append([x+mass[0], y+mass[1], z+square_distortion])
+			#add this distortion to this plane of the distortion
+			z += square_distortion
 
-			#plot the distortion created by this mass and orient it towards the location of the mass
-			#spacetime.plot_wireframe(x+mass[0], y+mass[1], z+square_distortion, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
+		#plot the distortion created by this mass and orient it towards the location of the mass
+		#spacetime.plot_wireframe(x, y, z, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
 
-			#plot the contour created by this mass and orient it towards the location of the mass
-			spacetime.contourf(x+mass[0], y+mass[1], z+square_distortion, cmap="seismic", zdir="z", offset=-400)
+		#plot the contour created by this mass and orient it towards the location of the mass
+		spacetime.contourf(x, y, z, cmap="seismic", zdir="z", offset=-size)
 
 #function for layering grids along the y axis
-def layer_y(warp=0):
+def layer_y():
 	#graph layers along the y axis
 	for elev in range(-size, size+spacing, spacing):
 		#make an empty array with the same shape as the x or y coordinates
@@ -147,18 +147,24 @@ def layer_y(warp=0):
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
+			#create the input values for making the 3d bell curve with the mass location offsets taken into account
+			r = np.sqrt((x-mass[0])**2 + (y-mass[2])**2)
+
 			#the distortion for the peak/3d bell curve
-			#square_distortion = bell_curve(r, period, amplitude)
-			square_distortion = bell_curve(r, weight/20, amplitude)
+			square_distortion = bell_curve(r, period, amplitude)
+			#square_distortion = bell_curve(r, weight/20, amplitude)
 
-			#plot the distortion created by this mass and orient it towards the location of the mass
-			#spacetime.plot_wireframe(x+mass[0], z+square_distortion, y+mass[1], rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
+			#add this distortion to this plane of the distortion
+			z += square_distortion
 
-			#plot the contour created by this mass and orient it towards the location of the mass
-			spacetime.contourf(x+mass[0], z+square_distortion, y+mass[1], cmap="seismic", zdir="y", offset=-400)
+		#plot the distortion created by this mass and orient it towards the location of the mass
+		#spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
+
+		#plot the contour created by this mass and orient it towards the location of the mass
+		spacetime.contourf(x, z, y, cmap="seismic", zdir="y", offset=-size)
 
 #function for layering grids along the x axis
-def layer_x(warp=0):
+def layer_x():
 	#graph layers along the x axis
 	for elev in range(-size, size+spacing, spacing):
 		#make an empty array with the same shape as the x or y coordinates
@@ -184,29 +190,26 @@ def layer_x(warp=0):
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
+			#create the input values for making the 3d bell curve with the mass location offsets taken into account
+			r = np.sqrt((x-mass[2])**2 + (y-mass[1])**2)
+
 			#the distortion for the peak/3d bell curve
-			#square_distortion = bell_curve(r, period, amplitude)
-			square_distortion = bell_curve(r, weight/20, amplitude)
+			square_distortion = bell_curve(r, period, amplitude)
+			#square_distortion = bell_curve(r, weight/20, amplitude)
 
-			#plot the distortion created by this mass and orient it towards the location of the mass
-			#spacetime.plot_wireframe(z+square_distortion, y+mass[1], x+mass[0], rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
+			#add this distortion to this plane of the distortion
+			z += square_distortion
 
-			#plot the contour created by this mass and orient it towards the location of the mass
-			spacetime.contourf(z+square_distortion, y+mass[1], x+mass[0], cmap="seismic", zdir="x", offset=-400)
+		#plot the distortion created by this mass and orient it towards the location of the mass
+		#spacetime.plot_wireframe(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
+
+		#plot the contour created by this mass and orient it towards the location of the mass
+		spacetime.contourf(z, y, x, cmap="seismic", zdir="x", offset=-size)
 
 #create layers with different "warp" properties for each dimension
-'''
-layer_x()
-layer_y()
-'''
 layer_z()
 layer_y()
 layer_x()
-
-'''
-x, y, z = bivariate_distribution(100, 100, 1)
-spacetime.plot_surface(x, y, z, cmap="seismic")
-'''
 
 #show the data on the graph
 plt.show()
