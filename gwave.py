@@ -85,11 +85,11 @@ def layer_z(warp=0):
 		z = np.empty(x.shape)
 		z.fill(0)
 
-		print(len(z))
-		print(len(z[0]))
-
 		#add the elevation to the z coordinates
 		z += elev
+
+		#an array to store the different individual distortion fields of each mass
+		distortions = []
 
 		#warp the fields according to the distance from each mass
 		for mass in masses:
@@ -105,16 +105,20 @@ def layer_z(warp=0):
 
 			#calculate the amplitude and the period of the gaussian distribution based on the mass and distance
 			amplitude = -(weight / distance)
-			period = (distance / weight)*5000
+			period = (distance / weight)*1000
 
-			square_distortion = bell_curve(r, period, amplitude)
-			#square_distortion = bell_curve(r, amplitude*10, amplitude)
+			#the distortion for the peak/3d bell curve
+			#square_distortion = bell_curve(r, period, amplitude)
+			square_distortion = bell_curve(r, weight/20, amplitude)
+
+			#add this individual distortion to the distortions array
+			distortions.append([x+mass[0], y+mass[1], z+square_distortion])
 
 			#plot the distortion created by this mass and orient it towards the location of the mass
-			#spacetime.plot_wireframe(x+mass[0], y+mass[1], z+square_distortion, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
+			spacetime.plot_wireframe(x+mass[0], y+mass[1], z+square_distortion, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
 
 			#plot the contour created by this mass and orient it towards the location of the mass
-			spacetime.contour(x+mass[0], y+mass[1], z+square_distortion, linewidth=1, cmap="seismic")
+			#spacetime.contour(x+mass[0], y+mass[1], z+square_distortion, cmap="seismic")
 
 #function for layering grids along the y axis
 def layer_y(warp=0):
@@ -136,24 +140,22 @@ def layer_y(warp=0):
 			weight = mass[3]*1000
 
 			#if the plane is right on the mass, don't manipulate anything about it
-			if not distance:
+			if distance == 0:
 				continue
 
 			#calculate the amplitude and the period of the gaussian distribution based on the mass and distance
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
-			#add a bell curve to this plane based on the distance from this mass
-			z += bell_curve(x, period, amplitude, mass[0])
-			z += bell_curve(y, period, amplitude, mass[2])
+			#the distortion for the peak/3d bell curve
+			#square_distortion = bell_curve(r, period, amplitude)
+			square_distortion = bell_curve(r, weight/20, amplitude)
 
-		#plot the 3d data
-		spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
+			#plot the distortion created by this mass and orient it towards the location of the mass
+			spacetime.plot_wireframe(x+mass[0], z+square_distortion, y+mass[1], rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
 
-		#spacetime.contour(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
-
-		#project contours onto the map for visualizing gravitational strain
-		#spacetime.contour(x, z, y, zdir="y", cmap="coolwarm", offset=size)
+			#plot the contour created by this mass and orient it towards the location of the mass
+			#spacetime.contour(x+mass[0], z+square_distortion, y+mass[1], cmap="seismic")
 
 #function for layering grids along the x axis
 def layer_x(warp=0):
@@ -175,24 +177,22 @@ def layer_x(warp=0):
 			weight = mass[3]*1000
 
 			#if the plane is right on the mass, don't manipulate anything about it
-			if not distance:
+			if distance == 0:
 				continue
 
 			#calculate the amplitude and the period of the gaussian distribution based on the mass and distance
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
-			#add a bell curve to this plane based on the distance from this mass
-			z += bell_curve(x, period, amplitude, mass[2])
-			z += bell_curve(y, period, amplitude, mass[1])
+			#the distortion for the peak/3d bell curve
+			#square_distortion = bell_curve(r, period, amplitude)
+			square_distortion = bell_curve(r, weight/20, amplitude)
 
-		#plot the 3d data
-		spacetime.plot_wireframe(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
+			#plot the distortion created by this mass and orient it towards the location of the mass
+			spacetime.plot_wireframe(z+square_distortion, y+mass[1], x+mass[0], rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
 
-		#spacetime.contour(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=0, color="blue", alpha=0.5)
-
-		#project contours onto the map for visualizing gravitational strain
-		#spacetime.contour(z, y, x, zdir="x", cmap="coolwarm", offset=size)
+			#plot the contour created by this mass and orient it towards the location of the mass
+			#spacetime.contour(z+square_distortion, y+mass[1], x+mass[0], cmap="seismic")
 
 #create layers with different "warp" properties for each dimension
 '''
@@ -200,6 +200,8 @@ layer_x()
 layer_y()
 '''
 layer_z()
+layer_y()
+layer_x()
 
 '''
 x, y, z = bivariate_distribution(100, 100, 1)
