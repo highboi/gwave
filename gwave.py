@@ -2,16 +2,27 @@
 MODULES AND VARIABLES FOR PLOTTING
 '''
 from mpl_toolkits.mplot3d import axes3d
-from matplotlib.animation import FuncAnimation
+from matplotlib import animation
 import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-#make a 3d graph to plot data
-spacetime = plt.figure().add_subplot(projection="3d")
-
 #a variable for the volume of the spacetime being simulated
 size = 200
+
+#make a 3d graph to plot data
+fig = plt.figure()
+spacetime = fig.add_subplot(projection="3d")
+
+#setting labels for all axes
+spacetime.set_xlabel("X")
+spacetime.set_ylabel("Y")
+spacetime.set_zlabel("z")
+
+#setting the axes limits
+spacetime.set_xlim([-size, size])
+spacetime.set_ylim([-size, size])
+spacetime.set_zlim([-size, size])
 
 #a variable for the spacing the grids
 spacing = 50
@@ -26,7 +37,7 @@ x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
 r = np.sqrt((x+100)**2+(y+100)**2)
 
 #define values for the location(s) and weights of masses in spacetime (adding multiple masses to one array is useful)
-masses = [[0, 0, 0, 1], [-100, -100, -100, 5]]
+masses = [[0, 0, 0, 3], [-100, -100, -100, 5], [100, 100, 100, 1]]
 
 '''
 FUNCTIONS FOR MANIPULATING THE 2D GRIDS USING WAVE FUNCTIONS TO REPRESENT SPACETIME CURVATURE
@@ -70,9 +81,11 @@ def plot_mass(x, y, z, mass):
 	#plot the mass and make the size a multiple of the mass (mass is in kilograms)
 	spacetime.scatter(x, y, z, c="magenta", s=mass*1000)
 
-#plot all masses defined in the array of point masses
-for mass in masses:
-	plot_mass(mass[0], mass[1], mass[2], mass[3])
+#a function for plotting the masses in the mass array
+def plot_masses():
+	#plot all masses defined in the array of point masses
+	for mass in masses:
+		plot_mass(mass[0], mass[1], mass[2], mass[3])
 
 '''
 FUNCTIONS FOR PLOTTING SPACETIME LAYERS IN 3 DIMENSIONS
@@ -161,7 +174,7 @@ def layer_y():
 		#spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
 
 		#plot the contour created by this mass and orient it towards the location of the mass
-		spacetime.contourf(x, z, y, cmap="seismic", zdir="y", offset=-size)
+		spacetime.contourf(x, z, y, cmap="seismic", zdir="y", offset=size)
 
 #function for layering grids along the x axis
 def layer_x():
@@ -206,10 +219,62 @@ def layer_x():
 		#plot the contour created by this mass and orient it towards the location of the mass
 		spacetime.contourf(z, y, x, cmap="seismic", zdir="x", offset=-size)
 
+'''
+#variable for storing frames of video
+frames = 100
+
+def update(num):
+
+ani = animation.FuncAnimation(fig, update, frames, fargs=(), interval=frames, blit=False)
+
+'''
+
 #create layers with different "warp" properties for each dimension
+'''
 layer_z()
 layer_y()
 layer_x()
+'''
+
+#plot the masses
+#plot_masses()
 
 #show the data on the graph
-plt.show()
+#plt.show()
+
+#generate frames and alter data each iteration
+for i in range(100):
+	#print the current frame number
+	print("FRAME NUMBER:", i)
+
+	#make a 3d graph to plot new
+	fig = plt.figure()
+	spacetime = fig.add_subplot(projection="3d")
+
+	#setting labels for all axes
+	spacetime.set_xlabel("X")
+	spacetime.set_ylabel("Y")
+	spacetime.set_zlabel("z")
+
+	#setting the axes limits
+	spacetime.set_xlim([-size, size])
+	spacetime.set_ylim([-size, size])
+	spacetime.set_zlim([-size, size])
+
+	#manipulate the mass locations
+	for mass in masses:
+		mass[0] += 1
+		mass[1] -= 1
+		mass[2] += 1
+
+	#layer the new distortions in the virtual spacetime
+	layer_z()
+	layer_y()
+	layer_x()
+
+	#save this plot as a png image
+	plt.savefig("distortion{frame:02d}.png".format(frame=i))
+
+	#close this figure and clear the plot for the next frame
+	plt.close(fig)
+	plt.clf()
