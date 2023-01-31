@@ -37,8 +37,7 @@ x, y = np.meshgrid(np.linspace(-size, size), np.linspace(-size, size))
 r = np.sqrt((x+100)**2+(y+100)**2)
 
 #define values for the location(s) and weights of masses in spacetime (adding multiple masses to one array is useful)
-#masses = [[0, 0, 0, 3], [-100, -100, -100, 5], [100, 100, 100, 1]]
-masses = [[0, 0, 0, 3]]
+masses = [[0, 0, 0, 3], [-100, -100, -100, 5], [100, 100, 100, 1]]
 
 '''
 FUNCTIONS FOR MANIPULATING THE 2D GRIDS USING WAVE FUNCTIONS TO REPRESENT SPACETIME CURVATURE
@@ -107,7 +106,7 @@ def layer_z(reduction=0):
 		#warp the fields according to the distance from each mass
 		for mass in masses:
 			#get the distance of this plane from the mass
-			distance = z[0][0] - mass[0]
+			distance = z[0][0] - mass[2]
 
 			#get the mass number
 			weight = mass[3]*1000
@@ -138,8 +137,7 @@ def layer_z(reduction=0):
 		#spacetime.plot_wireframe(x, y, z, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
 
 		#plot the contour created by this mass and orient it towards the location of the mass
-		#spacetime.contourf(x, y, z, cmap="seismic", zdir="z", offset=-size)
-		spacetime.contourf(x, y, z, cmap="seismic", zdir="z")
+		spacetime.contourf(x, y, z, cmap="seismic", zdir="z", offset=-size)
 
 #function for layering grids along the y axis
 def layer_y(reduction=0):
@@ -157,7 +155,7 @@ def layer_y(reduction=0):
 		#warp the fields according to the distance from each mass
 		for mass in masses:
 			#get the distance of this plane from the mass
-			distance = z[0][0] - mass[0]
+			distance = z[0][0] - mass[1]
 
 			#get the mass number
 			weight = mass[3]*1000
@@ -283,16 +281,14 @@ for i in range(100):
 
 	#manipulate the mass locations
 	for mass in masses:
-		mass[1] += 2
+		mass[0] += 2
 
 	print(masses)
 
 	#layer the new distortions in the virtual spacetime
 	layer_z()
-	'''
 	layer_y()
 	layer_x()
-	'''
 
 	#save this plot as a png image
 	plt.savefig("distortion{frame:02d}.png".format(frame=i))
