@@ -183,7 +183,7 @@ def layer_y(reduction=0):
 			z += square_distortion
 
 		#plot the distortion created by this mass and orient it towards the location of the mass
-		#spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
+		#spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
 
 		#plot the contour created by this mass and orient it towards the location of the mass
 		spacetime.contourf(x, z, y, cmap="seismic", zdir="y", offset=size)
@@ -232,7 +232,7 @@ def layer_x(reduction=0):
 			z += square_distortion
 
 		#plot the distortion created by this mass and orient it towards the location of the mass
-		#spacetime.plot_wireframe(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
+		#spacetime.plot_wireframe(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
 
 		#plot the contour created by this mass and orient it towards the location of the mass
 		spacetime.contourf(z, y, x, cmap="seismic", zdir="x", offset=-size)
@@ -269,6 +269,9 @@ for i in range(100):
 	fig = plt.figure()
 	spacetime = fig.add_subplot(projection="3d")
 
+	#orient the 'camera' for the 3d spacetime
+	spacetime.view_init(elev=45, azim=-45)
+
 	#setting labels for all axes
 	spacetime.set_xlabel("X")
 	spacetime.set_ylabel("Y")
@@ -282,8 +285,6 @@ for i in range(100):
 	#manipulate the mass locations
 	for mass in masses:
 		mass[0] += 2
-
-	print(masses)
 
 	#layer the new distortions in the virtual spacetime
 	layer_z()
