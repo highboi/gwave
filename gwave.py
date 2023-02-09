@@ -1,7 +1,7 @@
 '''
 MODULES AND VARIABLES FOR PLOTTING
 '''
-from mpl_toolkits.mplot3d import axes3d
+from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
 import matplotlib.pyplot as plt
 import numpy as np
@@ -79,7 +79,7 @@ def bell_curve(inputvals, period, amplitude, phaseshift=0):
 #a function for plotting a point mass
 def plot_mass(x, y, z, mass):
 	#plot the mass and make the size a multiple of the mass (mass is in kilograms)
-	spacetime.scatter(x, y, z, c="magenta", s=mass*1000)
+	spacetime.scatter(x, y, z, c="black", s=mass*1000, marker="o")
 
 #a function for plotting the masses in the mass array
 def plot_masses():
@@ -91,8 +91,12 @@ def plot_masses():
 FUNCTIONS FOR PLOTTING SPACETIME LAYERS IN 3 DIMENSIONS
 '''
 #function for layering grids along the z axis
-def layer_z(reduction=0):
+def layer_z(xdist=0, ydist=0):
 	global spacetime
+
+	#list for storing the layers of planes and distortions
+	planes = []
+	distortions = []
 
 	#graph layers along the z axis
 	for elev in range(-size, size+spacing, spacing):
@@ -103,10 +107,15 @@ def layer_z(reduction=0):
 		#add the elevation to the z coordinates
 		z += elev
 
+		#distortions sublist
+		dists = []
+
 		#warp the fields according to the distance from each mass
 		for mass in masses:
 			#get the distance of this plane from the mass
 			distance = z[0][0] - mass[2]
+			dist_change = np.sqrt(xdist**2 + ydist**2)
+			distance += dist_change
 
 			#get the mass number
 			weight = mass[3]*1000
@@ -119,29 +128,38 @@ def layer_z(reduction=0):
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
-			#reduce the values for this distortion if necessary
-			amplitude -= reduction
-			period -= reduction
-
 			#create the input values for making the 3d bell curve with the mass location offsets taken into account
-			r = np.sqrt((x-mass[0])**2 + (y-mass[1])**2)
+			r = np.sqrt((x-(mass[0]+xdist))**2 + (y-(mass[1]+ydist))**2)
 
 			#the distortion for the peak/3d bell curve
 			square_distortion = bell_curve(r, period, amplitude)
-			#square_distortion = bell_curve(r, weight/20, amplitude)
 
 			#add this distortion to this plane of the distortion
 			z += square_distortion
+
+			#add this distortion to the distortions sublist
+			dists.append(square_distortion)
 
 		#plot the distortion created by this mass and orient it towards the location of the mass
 		#spacetime.plot_wireframe(x, y, z, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="red", alpha=0.5)
 
 		#plot the contour created by this mass and orient it towards the location of the mass
-		spacetime.contourf(x, y, z, cmap="seismic", zdir="z", offset=-size)
+		#spacetime.contourf(x, y, z, cmap="seismic", zdir="z", offset=-size)
+
+		#add this layer and its distortions to the lists
+		planes.append((x, y, z))
+		distortions.append(dists)
+
+	#return the planes and distortions lists
+	return planes, distortions
 
 #function for layering grids along the y axis
-def layer_y(reduction=0):
+def layer_y(xdist=0, ydist=0):
 	global spacetime
+
+	#lists for storing the layers of planes and distortions
+	planes = []
+	distortions = []
 
 	#graph layers along the y axis
 	for elev in range(-size, size+spacing, spacing):
@@ -152,10 +170,15 @@ def layer_y(reduction=0):
 		#add the elevation to the z coordinates
 		z += elev
 
+		#distortions sublist
+		dists = []
+
 		#warp the fields according to the distance from each mass
 		for mass in masses:
 			#get the distance of this plane from the mass
 			distance = z[0][0] - mass[1]
+			dist_change = np.sqrt(xdist**2 + ydist**2)
+			distance += dist_change
 
 			#get the mass number
 			weight = mass[3]*1000
@@ -168,12 +191,8 @@ def layer_y(reduction=0):
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
-			#reduce the values for this distortion if necessary
-			amplitude -= reduction
-			period -= reduction
-
 			#create the input values for making the 3d bell curve with the mass location offsets taken into account
-			r = np.sqrt((x-mass[0])**2 + (y-mass[2])**2)
+			r = np.sqrt((x-(mass[0]+xdist))**2 + (y-(mass[2]+ydist))**2)
 
 			#the distortion for the peak/3d bell curve
 			square_distortion = bell_curve(r, period, amplitude)
@@ -182,15 +201,29 @@ def layer_y(reduction=0):
 			#add this distortion to this plane of the distortion
 			z += square_distortion
 
+			#append this distortion to the distortions for this plane
+			dists.append(square_distortions)
+
 		#plot the distortion created by this mass and orient it towards the location of the mass
 		#spacetime.plot_wireframe(x, z, y, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="green", alpha=0.5)
 
 		#plot the contour created by this mass and orient it towards the location of the mass
-		spacetime.contourf(x, z, y, cmap="seismic", zdir="y", offset=size)
+		#spacetime.contourf(x, z, y, cmap="seismic", zdir="y", offset=size)
+
+		#add this layer and it's distortions to the lists
+		planes.append((x, z, y))
+		distortions.append(dists)
+
+	#return the planes and distortions lists
+	return planes, distortions
 
 #function for layering grids along the x axis
-def layer_x(reduction=0):
+def layer_x(xdist=0, ydist=0):
 	global spacetime
+
+	#lists for storing the layers of planes and distortions
+	planes = []
+	distortions = []
 
 	#graph layers along the x axis
 	for elev in range(-size, size+spacing, spacing):
@@ -201,10 +234,15 @@ def layer_x(reduction=0):
 		#add the elevation to the z coordinates
 		z += elev
 
+		#distortions sublist
+		dists = []
+
 		#warp the fields according to the distance from each mass
 		for mass in masses:
 			#get the distance of this plane from the mass
 			distance = z[0][0] - mass[0]
+			dist_change = np.sqrt(xdist**2 + ydist**2)
+			distance += dist_change
 
 			#get the mass number
 			weight = mass[3]*1000
@@ -217,12 +255,8 @@ def layer_x(reduction=0):
 			amplitude = -(weight / distance)
 			period = (distance / weight)*1000
 
-			#reduce the values for this distortion if necessary
-			amplitude -= reduction
-			period -= reduction
-
 			#create the input values for making the 3d bell curve with the mass location offsets taken into account
-			r = np.sqrt((x-mass[2])**2 + (y-mass[1])**2)
+			r = np.sqrt((x-(mass[2]+xdist))**2 + (y-(mass[1]+ydist))**2)
 
 			#the distortion for the peak/3d bell curve
 			square_distortion = bell_curve(r, period, amplitude)
@@ -231,21 +265,21 @@ def layer_x(reduction=0):
 			#add this distortion to this plane of the distortion
 			z += square_distortion
 
+			#append this distortion to the sub distortions list
+			dists.append(square_distortion)
+
 		#plot the distortion created by this mass and orient it towards the location of the mass
 		#spacetime.plot_wireframe(z, y, x, rstride=gridlinespacing, cstride=gridlinespacing, linewidth=1, color="blue", alpha=0.5)
 
 		#plot the contour created by this mass and orient it towards the location of the mass
-		spacetime.contourf(z, y, x, cmap="seismic", zdir="x", offset=-size)
+		#spacetime.contourf(z, y, x, cmap="seismic", zdir="x", offset=-size)
 
-'''
-#variable for storing frames of video
-frames = 100
+		#add this layer and its distortions to the lists
+		planes.append((z, y, x))
+		distortions.append(dists)
 
-def update(num):
-
-ani = animation.FuncAnimation(fig, update, frames, fargs=(), interval=frames, blit=False)
-
-'''
+	#return the planes and distortions lists
+	return planes, distortions
 
 #create layers with different "warp" properties for each dimension
 '''
@@ -287,13 +321,15 @@ for i in range(100):
 		mass[0] += 2
 
 	#layer the new distortions in the virtual spacetime
-	layer_z()
-	layer_y()
-	layer_x()
+	planes_z, dists_z = layer_z()
+	#planes_y, dists_y = layer_y()
+	#planes_x, dists_x = layer_x()
+
+	print("*"*1000)
+	print(dists_z)
 
 	#save this plot as a png image
 	plt.savefig("distortion{frame:02d}.png".format(frame=i))
 
 	#close this figure and clear the plot for the next frame
 	plt.close(fig)
-	#plt.clf()
